@@ -50,7 +50,6 @@ var minesLeftText = document.querySelector('[data-mine-count]');
 var messageText = document.querySelector('.subtext');
 board.forEach(function (row) {
     row.forEach(function (tile) {
-        boardElement.append(tile.element);
         tile.element.addEventListener('click', function () {
             revealTile(board, tile);
             checkGameEnd();
@@ -60,6 +59,7 @@ board.forEach(function (row) {
             markTile(tile);
             listMinesLeft();
         });
+        boardElement.append(tile.element);
     });
 });
 boardElement.style.setProperty('--size', BOARD_SIZE.toString());
@@ -96,9 +96,14 @@ function markTile(tile) {
         return;
     if (tile.status === TILE_STATUSES.MARKED) {
         tile.status = TILE_STATUSES.HIDDEN;
+        var image = tile.element.children[0];
+        tile.element.removeChild(image);
     }
     else {
         tile.status = TILE_STATUSES.MARKED;
+        var image = document.createElement('div');
+        image.classList.add('flag');
+        tile.element.appendChild(image);
     }
 }
 ;

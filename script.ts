@@ -50,7 +50,6 @@ const messageText = document.querySelector('.subtext');
 
 board.forEach(row => {
     row.forEach(tile => {
-        boardElement.append(tile.element);
         tile.element.addEventListener('click', () => {
             revealTile(board, tile);
             checkGameEnd()
@@ -60,6 +59,8 @@ board.forEach(row => {
             markTile(tile);
             listMinesLeft();
         })
+
+        boardElement.append(tile.element);
     })
 });
 
@@ -110,8 +111,13 @@ function markTile(tile: ITile) {
 
     if (tile.status === TILE_STATUSES.MARKED) {
         tile.status = TILE_STATUSES.HIDDEN
+        const image = tile.element.children[0];
+        tile.element.removeChild(image)
     } else {
         tile.status = TILE_STATUSES.MARKED
+        const image = document.createElement('div');
+        image.classList.add('flag')
+        tile.element.appendChild(image);
     }
 };
 
