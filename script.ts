@@ -29,14 +29,17 @@ button.addEventListener('click', (e) => {
     switch (difficulty) {
         case 'easy': {
             numberOfMines = 10
+            messageText.textContent = `Mines left: ${numberOfMines}`
             return board = createBoard(BOARD_SIZE, numberOfMines);
         }
         case 'medium': {
             numberOfMines = 20
+            messageText.textContent = `Mines left: ${numberOfMines}`
             return board = createBoard(BOARD_SIZE, numberOfMines);
         }
         case 'hard': {
             numberOfMines = 40
+            messageText.textContent = `Mines left: ${numberOfMines}`
             return board = createBoard(BOARD_SIZE, numberOfMines);
         }
         default: return
@@ -92,7 +95,7 @@ function createBoard(boardSize: number, numberOfMines: number) {
 
     button.setAttribute('disabled', 'true');
 
-    return board    
+    return board
 };
 
 
@@ -196,17 +199,10 @@ function checkGameEnd() {
     if (win || lose) {
         board.forEach(row => {
             row.forEach(tile => {
-                tile.element.removeEventListener('click', () => {
-                    revealTile(board, tile);
-                    checkGameEnd()
-                });
-                tile.element.removeEventListener('contextmenu', e => {
-                    e.preventDefault();
-                    markTile(tile);
-                    listMinesLeft();
-                })
+                tile.element.addEventListener('click', stopProps, { capture: true });
+                tile.element.addEventListener('contextmenu', stopProps, { capture: true });
             })
-        });
+        })
         button.removeAttribute('disabled');
     };
 
@@ -221,7 +217,7 @@ function checkGameEnd() {
                     image.classList.add('mine');
                     tile.element.appendChild(image)
                     revealTile(board, tile)
-                } 
+                }
             })
         })
     }
@@ -244,4 +240,8 @@ function checkLose(board: ITile[][]) {
             return tile.status === TILE_STATUSES.MINE
         })
     })
+};
+
+function stopProps(e: Event){
+    e.stopImmediatePropagation()
 };

@@ -4,10 +4,14 @@
 * {
     box-sizing: border-box;
     margin: 0;
-    font-family: 'Secular One', sans-serif;}
+    font-family: 'Secular One', sans-serif;
+    text-shadow: 2px 2px 5px #000;
+}
 
 .container{
-    background-color: #333;
+    background-image: url('./background.jpg');
+    background-position: center;
+    background-size: cover;
     display: flex;
     color: #fff;
     min-height: 100vh;
@@ -28,7 +32,6 @@
 }
 
 .subtext{
-    color: #ccc;
     font-size: 1.5rem;
     text-align: center
 }
@@ -45,9 +48,15 @@
     padding: 0.5em;
 }
 
+.input{
+    width: 1.25em;
+    height: 1.25em;
+}
+
 #submit{
     padding: 0.5em 1em;
     background-color: #ccc;
+    text-shadow: none;
 }
 
 .board-container{
@@ -73,14 +82,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #fff;
-    font-size: 1.5rem;
+    color: #222;
+    font-size: 1.75rem;
     border: 2px solid #888;
     user-select: none;
 }
 
 .board > [data-status="hidden"]{
-    background-color: #bbb;
+    background-color: #ccc;
     cursor: pointer;    
 }
 

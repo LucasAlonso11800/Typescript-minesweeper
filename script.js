@@ -24,14 +24,17 @@ button.addEventListener('click', function (e) {
     switch (difficulty) {
         case 'easy': {
             numberOfMines = 10;
+            messageText.textContent = "Mines left: " + numberOfMines;
             return board = createBoard(BOARD_SIZE, numberOfMines);
         }
         case 'medium': {
             numberOfMines = 20;
+            messageText.textContent = "Mines left: " + numberOfMines;
             return board = createBoard(BOARD_SIZE, numberOfMines);
         }
         case 'hard': {
             numberOfMines = 40;
+            messageText.textContent = "Mines left: " + numberOfMines;
             return board = createBoard(BOARD_SIZE, numberOfMines);
         }
         default: return;
@@ -176,15 +179,8 @@ function checkGameEnd() {
     if (win || lose) {
         board.forEach(function (row) {
             row.forEach(function (tile) {
-                tile.element.removeEventListener('click', function () {
-                    revealTile(board, tile);
-                    checkGameEnd();
-                });
-                tile.element.removeEventListener('contextmenu', function (e) {
-                    e.preventDefault();
-                    markTile(tile);
-                    listMinesLeft();
-                });
+                tile.element.addEventListener('click', stopProps, { capture: true });
+                tile.element.addEventListener('contextmenu', stopProps, { capture: true });
             });
         });
         button.removeAttribute('disabled');
@@ -225,5 +221,9 @@ function checkLose(board) {
             return tile.status === TILE_STATUSES.MINE;
         });
     });
+}
+;
+function stopProps(e) {
+    e.stopImmediatePropagation();
 }
 ;
