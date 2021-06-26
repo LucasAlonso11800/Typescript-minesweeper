@@ -198,8 +198,12 @@ function checkGameEnd() {
             row.forEach(function (tile) {
                 if (tile.status === TILE_STATUSES.MARKED)
                     markTile(tile);
-                if (tile.mine)
+                if (tile.mine) {
+                    var image = document.createElement('div');
+                    image.classList.add('mine');
+                    tile.element.appendChild(image);
                     revealTile(board, tile);
+                }
             });
         });
     }

@@ -216,7 +216,12 @@ function checkGameEnd() {
         board.forEach(row => {
             row.forEach(tile => {
                 if (tile.status === TILE_STATUSES.MARKED) markTile(tile)
-                if (tile.mine) revealTile(board, tile)
+                if (tile.mine) {
+                    const image = document.createElement('div');
+                    image.classList.add('mine');
+                    tile.element.appendChild(image)
+                    revealTile(board, tile)
+                } 
             })
         })
     }
