@@ -8,12 +8,42 @@ var TILE_STATUSES = {
     NUMBER: 'number',
     MARKED: 'marked',
 };
+var button = document.getElementById('submit');
+var boardElement = document.querySelector('.board');
+var minesLeftText = document.querySelector('[data-mine-count]');
+var messageText = document.querySelector('.subtext');
 var BOARD_SIZE = 10;
-var NUMBER_OF_MINES = 10;
+var numberOfMines = 10;
+var board = createBoard(BOARD_SIZE, numberOfMines);
+button.addEventListener('click', function (e) {
+    e.preventDefault();
+    var difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+    while (boardElement.firstChild) {
+        boardElement.removeChild(boardElement.lastChild);
+    }
+    switch (difficulty) {
+        case 'easy': {
+            numberOfMines = 10;
+            return board = createBoard(BOARD_SIZE, numberOfMines);
+        }
+        case 'medium': {
+            numberOfMines = 20;
+            return board = createBoard(BOARD_SIZE, numberOfMines);
+        }
+        case 'hard': {
+            numberOfMines = 40;
+            return board = createBoard(BOARD_SIZE, numberOfMines);
+        }
+        default: return;
+    }
+});
 // Board creation
 function createBoard(boardSize, numberOfMines) {
     var board = [];
     var minePositions = getMinePositions(boardSize, numberOfMines);
+    while (boardElement.firstChild) {
+        boardElement.removeChild(boardElement.lastChild);
+    }
     var _loop_1 = function (x) {
         var row = [];
         var _loop_2 = function (y) {
@@ -41,29 +71,27 @@ function createBoard(boardSize, numberOfMines) {
     for (var x = 0; x < boardSize; x++) {
         _loop_1(x);
     }
+    ;
+    board.forEach(function (row) {
+        row.forEach(function (tile) {
+            tile.element.addEventListener('click', function () {
+                revealTile(board, tile);
+                checkGameEnd();
+            });
+            tile.element.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+                markTile(tile);
+                listMinesLeft();
+            });
+            boardElement.append(tile.element);
+        });
+    });
+    button.setAttribute('disabled', 'true');
     return board;
 }
 ;
-var board = createBoard(BOARD_SIZE, NUMBER_OF_MINES);
-var boardElement = document.querySelector('.board');
-var minesLeftText = document.querySelector('[data-mine-count]');
-var messageText = document.querySelector('.subtext');
-board.forEach(function (row) {
-    row.forEach(function (tile) {
-        tile.element.addEventListener('click', function () {
-            revealTile(board, tile);
-            checkGameEnd();
-        });
-        tile.element.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
-            markTile(tile);
-            listMinesLeft();
-        });
-        boardElement.append(tile.element);
-    });
-});
 boardElement.style.setProperty('--size', BOARD_SIZE.toString());
-minesLeftText.textContent = NUMBER_OF_MINES.toString();
+minesLeftText.textContent = numberOfMines.toString();
 function getMinePositions(boardSize, numberOfMines) {
     var positions = [];
     var _loop_3 = function () {
@@ -111,7 +139,7 @@ function listMinesLeft() {
     var markedTilesCount = board.reduce(function (acc, row) {
         return acc + row.filter(function (tile) { return tile.status === TILE_STATUSES.MARKED; }).length;
     }, 0);
-    return minesLeftText.textContent = (NUMBER_OF_MINES - markedTilesCount).toString();
+    return minesLeftText.textContent = (numberOfMines - markedTilesCount).toString();
 }
 ;
 // Revealing tiles
@@ -146,9 +174,22 @@ function checkGameEnd() {
     var win = checkWin(board);
     var lose = checkLose(board);
     if (win || lose) {
-        boardElement.addEventListener('click', stopProp, { capture: true });
-        boardElement.addEventListener('contextmenu', stopProp, { capture: true });
+        board.forEach(function (row) {
+            row.forEach(function (tile) {
+                tile.element.removeEventListener('click', function () {
+                    revealTile(board, tile);
+                    checkGameEnd();
+                });
+                tile.element.removeEventListener('contextmenu', function (e) {
+                    e.preventDefault();
+                    markTile(tile);
+                    listMinesLeft();
+                });
+            });
+        });
+        button.removeAttribute('disabled');
     }
+    ;
     if (win)
         return messageText.textContent = 'You win! :)';
     if (lose) {
@@ -180,9 +221,5 @@ function checkLose(board) {
             return tile.status === TILE_STATUSES.MINE;
         });
     });
-}
-;
-function stopProp(e) {
-    e.stopImmediatePropagation();
 }
 ;

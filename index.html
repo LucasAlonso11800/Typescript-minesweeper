@@ -15,6 +15,22 @@
             <div class="subtext">
                 Mines left: <span data-mine-count>10</span>
             </div>
+            <form class="form">
+                <p class="form-title">Choose difficulty</p>
+                <div class="form-input">
+                    <label>Easy</label>
+                    <input type="radio" name="difficulty" value="easy" class="input" checked>
+                </div>
+                <div class="form-input">
+                    <label>Medium</label>
+                    <input type="radio" name="difficulty" value="medium" class="input">
+                </div>
+                <div class="form-input">
+                    <label>Hard</label>
+                    <input type="radio" name="difficulty" value="hard" class="input">
+                </div>
+                <button type="submit" id="submit">Start game</button>
+            </form>
         </div>
         <div class="board-container">
             <div class="board"></div>
