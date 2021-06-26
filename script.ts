@@ -51,7 +51,7 @@ board.forEach(row => {
     row.forEach(tile => {
         boardElement.append(tile.element);
         tile.element.addEventListener('click', () => {
-
+            revealTile(board, tile)
         });
         tile.element.addEventListener('contextmenu', e => {
             e.preventDefault();
@@ -118,4 +118,31 @@ function listMinesLeft(){
         return acc + row.filter(tile => tile.status === TILE_STATUSES.MARKED).length
     }, 0);
     return minesLeftText.textContent = (NUMBER_OF_MINES - markedTilesCount).toString()
+};
+
+// Revealing tiles
+
+function revealTile(board: ITile[][], tile: ITile){
+    if(tile.status !== TILE_STATUSES.HIDDEN) return
+
+    if(tile.mine) return tile.status = TILE_STATUSES.MINE
+
+    tile.status = TILE_STATUSES.NUMBER
+    const adjacentTiles = nearbyTiles(board, tile);
+    const mines = adjacentTiles.filter(t => t.mine)
+
+    if(mines.length > 0) return tile.element.textContent = mines.length.toString();
+
+    adjacentTiles.forEach(tile => revealTile(board, tile));
+};
+
+function nearbyTiles(board: ITile[][], tile: ITile){
+    const tiles = <ITile[]>[];
+    for(let xOffset = -1; xOffset <= 1; xOffset++){
+        for(let yOffset = -1; yOffset <= 1; yOffset++){
+            const nearbyTile = board[tile.x + xOffset]?.[tile.y + yOffset];
+            if(nearbyTile) tiles.push(nearbyTile)
+        }
+    }
+    return tiles
 };

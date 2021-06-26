@@ -51,6 +51,7 @@ board.forEach(function (row) {
     row.forEach(function (tile) {
         boardElement.append(tile.element);
         tile.element.addEventListener('click', function () {
+            revealTile(board, tile);
         });
         tile.element.addEventListener('contextmenu', function (e) {
             e.preventDefault();
@@ -104,5 +105,32 @@ function listMinesLeft() {
         return acc + row.filter(function (tile) { return tile.status === TILE_STATUSES.MARKED; }).length;
     }, 0);
     return minesLeftText.textContent = (NUMBER_OF_MINES - markedTilesCount).toString();
+}
+;
+// Revealing tiles
+function revealTile(board, tile) {
+    if (tile.status !== TILE_STATUSES.HIDDEN)
+        return;
+    if (tile.mine)
+        return tile.status = TILE_STATUSES.MINE;
+    tile.status = TILE_STATUSES.NUMBER;
+    var adjacentTiles = nearbyTiles(board, tile);
+    var mines = adjacentTiles.filter(function (t) { return t.mine; });
+    if (mines.length > 0)
+        return tile.element.textContent = mines.length.toString();
+    adjacentTiles.forEach(function (tile) { return revealTile(board, tile); });
+}
+;
+function nearbyTiles(board, tile) {
+    var _a;
+    var tiles = [];
+    for (var xOffset = -1; xOffset <= 1; xOffset++) {
+        for (var yOffset = -1; yOffset <= 1; yOffset++) {
+            var nearbyTile = (_a = board[tile.x + xOffset]) === null || _a === void 0 ? void 0 : _a[tile.y + yOffset];
+            if (nearbyTile)
+                tiles.push(nearbyTile);
+        }
+    }
+    return tiles;
 }
 ;
