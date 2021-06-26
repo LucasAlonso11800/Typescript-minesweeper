@@ -36,7 +36,6 @@ function createBoard(boardSize: number, numberOfMines: number) {
                     this.element.dataset.status = value
                 }
             };
-
             row.push(tile)
         }
         board.push(row)
@@ -46,13 +45,24 @@ function createBoard(boardSize: number, numberOfMines: number) {
 
 const board = createBoard(BOARD_SIZE, NUMBER_OF_MINES);
 const boardElement = document.querySelector<HTMLElement>('.board');
-boardElement.style.setProperty('--size', `${BOARD_SIZE}`);
+const minesLeftText = document.querySelector('[data-mine-count]');
 
 board.forEach(row => {
     row.forEach(tile => {
-        boardElement.append(tile.element)
+        boardElement.append(tile.element);
+        tile.element.addEventListener('click', () => {
+
+        });
+        tile.element.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            markTile(tile)
+            listMinesLeft()
+        })
     })
 });
+
+boardElement.style.setProperty('--size', BOARD_SIZE.toString());
+minesLeftText.textContent = NUMBER_OF_MINES.toString()
 
 // Mine Positioning
 
@@ -80,4 +90,32 @@ function randomNumber(number: number) {
 
 function positionMatch(a: IPosition, b: IPosition) {
     return a.x === b.x && a.y === b.y
+};
+
+// Marking tiles
+
+interface ITile {
+    element: HTMLElement,
+    x: number,
+    y: number,
+    mine: boolean,
+    status: string
+};
+
+function markTile(tile: ITile) {
+    const isHiddenOrMarked = tile.status !== TILE_STATUSES.HIDDEN && tile.status !== TILE_STATUSES.MARKED
+    if (isHiddenOrMarked) return
+
+    if (tile.status === TILE_STATUSES.MARKED) {
+        tile.status = TILE_STATUSES.HIDDEN
+    } else {
+        tile.status = TILE_STATUSES.MARKED
+    }
+};
+
+function listMinesLeft(){
+    const markedTilesCount = board.reduce((acc, row) => {
+        return acc + row.filter(tile => tile.status === TILE_STATUSES.MARKED).length
+    }, 0);
+    return minesLeftText.textContent = (NUMBER_OF_MINES - markedTilesCount).toString()
 };

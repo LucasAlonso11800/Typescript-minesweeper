@@ -46,13 +46,21 @@ function createBoard(boardSize, numberOfMines) {
 ;
 var board = createBoard(BOARD_SIZE, NUMBER_OF_MINES);
 var boardElement = document.querySelector('.board');
-boardElement.style.setProperty('--size', "" + BOARD_SIZE);
+var minesLeftText = document.querySelector('[data-mine-count]');
 board.forEach(function (row) {
     row.forEach(function (tile) {
         boardElement.append(tile.element);
+        tile.element.addEventListener('click', function () {
+        });
+        tile.element.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+            markTile(tile);
+            listMinesLeft();
+        });
     });
 });
-console.log(board);
+boardElement.style.setProperty('--size', BOARD_SIZE.toString());
+minesLeftText.textContent = NUMBER_OF_MINES.toString();
 function getMinePositions(boardSize, numberOfMines) {
     var positions = [];
     var _loop_3 = function () {
@@ -76,5 +84,25 @@ function randomNumber(number) {
 ;
 function positionMatch(a, b) {
     return a.x === b.x && a.y === b.y;
+}
+;
+;
+function markTile(tile) {
+    var isHiddenOrMarked = tile.status !== TILE_STATUSES.HIDDEN && tile.status !== TILE_STATUSES.MARKED;
+    if (isHiddenOrMarked)
+        return;
+    if (tile.status === TILE_STATUSES.MARKED) {
+        tile.status = TILE_STATUSES.HIDDEN;
+    }
+    else {
+        tile.status = TILE_STATUSES.MARKED;
+    }
+}
+;
+function listMinesLeft() {
+    var markedTilesCount = board.reduce(function (acc, row) {
+        return acc + row.filter(function (tile) { return tile.status === TILE_STATUSES.MARKED; }).length;
+    }, 0);
+    return minesLeftText.textContent = (NUMBER_OF_MINES - markedTilesCount).toString();
 }
 ;
