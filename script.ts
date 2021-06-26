@@ -46,17 +46,19 @@ function createBoard(boardSize: number, numberOfMines: number) {
 const board = createBoard(BOARD_SIZE, NUMBER_OF_MINES);
 const boardElement = document.querySelector<HTMLElement>('.board');
 const minesLeftText = document.querySelector('[data-mine-count]');
+const messageText = document.querySelector('.subtext');
 
 board.forEach(row => {
     row.forEach(tile => {
         boardElement.append(tile.element);
         tile.element.addEventListener('click', () => {
-            revealTile(board, tile)
+            revealTile(board, tile);
+            checkGameEnd()
         });
         tile.element.addEventListener('contextmenu', e => {
             e.preventDefault();
-            markTile(tile)
-            listMinesLeft()
+            markTile(tile);
+            listMinesLeft();
         })
     })
 });
@@ -113,7 +115,7 @@ function markTile(tile: ITile) {
     }
 };
 
-function listMinesLeft(){
+function listMinesLeft() {
     const markedTilesCount = board.reduce((acc, row) => {
         return acc + row.filter(tile => tile.status === TILE_STATUSES.MARKED).length
     }, 0);
@@ -122,27 +124,73 @@ function listMinesLeft(){
 
 // Revealing tiles
 
-function revealTile(board: ITile[][], tile: ITile){
-    if(tile.status !== TILE_STATUSES.HIDDEN) return
+function revealTile(board: ITile[][], tile: ITile) {
+    if (tile.status !== TILE_STATUSES.HIDDEN) return
 
-    if(tile.mine) return tile.status = TILE_STATUSES.MINE
+    if (tile.mine) return tile.status = TILE_STATUSES.MINE
 
     tile.status = TILE_STATUSES.NUMBER
     const adjacentTiles = nearbyTiles(board, tile);
     const mines = adjacentTiles.filter(t => t.mine)
 
-    if(mines.length > 0) return tile.element.textContent = mines.length.toString();
+    if (mines.length > 0) return tile.element.textContent = mines.length.toString();
 
     adjacentTiles.forEach(tile => revealTile(board, tile));
 };
 
-function nearbyTiles(board: ITile[][], tile: ITile){
+function nearbyTiles(board: ITile[][], tile: ITile) {
     const tiles = <ITile[]>[];
-    for(let xOffset = -1; xOffset <= 1; xOffset++){
-        for(let yOffset = -1; yOffset <= 1; yOffset++){
+    for (let xOffset = -1; xOffset <= 1; xOffset++) {
+        for (let yOffset = -1; yOffset <= 1; yOffset++) {
             const nearbyTile = board[tile.x + xOffset]?.[tile.y + yOffset];
-            if(nearbyTile) tiles.push(nearbyTile)
+            if (nearbyTile) tiles.push(nearbyTile)
         }
     }
     return tiles
+};
+
+// Check win or lose
+
+function checkGameEnd() {
+    const win = checkWin(board);
+    const lose = checkLose(board);
+
+    if (win || lose) {
+        boardElement.addEventListener('click', stopProp, { capture: true });
+        boardElement.addEventListener('contextmenu', stopProp, { capture: true })
+    }
+
+    if (win) return messageText.textContent = 'You win! :)';
+    if (lose) {
+        messageText.textContent = 'You lose! :(';
+        board.forEach(row => {
+            row.forEach(tile => {
+                if (tile.status === TILE_STATUSES.MARKED) markTile(tile)
+                if (tile.mine) revealTile(board, tile)
+            })
+        })
+    }
+};
+
+function checkWin(board: ITile[][]) {
+    return board.every(row => {
+        return row.every(tile => {
+            const isANumber = tile.status === TILE_STATUSES.NUMBER;
+            const isAMineNotRevealed = tile.mine && (tile.status === TILE_STATUSES.HIDDEN || tile.status === TILE_STATUSES.MARKED)
+
+            return isANumber || isAMineNotRevealed
+        })
+    })
+};
+
+function checkLose(board: ITile[][]) {
+    return board.some(row => {
+        return row.some(tile => {
+            return tile.status === TILE_STATUSES.MINE
+        })
+    })
+};
+
+function stopProp(e: Event) {
+    e.stopImmediatePropagation()
 };

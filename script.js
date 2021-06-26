@@ -47,11 +47,13 @@ function createBoard(boardSize, numberOfMines) {
 var board = createBoard(BOARD_SIZE, NUMBER_OF_MINES);
 var boardElement = document.querySelector('.board');
 var minesLeftText = document.querySelector('[data-mine-count]');
+var messageText = document.querySelector('.subtext');
 board.forEach(function (row) {
     row.forEach(function (tile) {
         boardElement.append(tile.element);
         tile.element.addEventListener('click', function () {
             revealTile(board, tile);
+            checkGameEnd();
         });
         tile.element.addEventListener('contextmenu', function (e) {
             e.preventDefault();
@@ -132,5 +134,50 @@ function nearbyTiles(board, tile) {
         }
     }
     return tiles;
+}
+;
+// Check win or lose
+function checkGameEnd() {
+    var win = checkWin(board);
+    var lose = checkLose(board);
+    if (win || lose) {
+        boardElement.addEventListener('click', stopProp, { capture: true });
+        boardElement.addEventListener('contextmenu', stopProp, { capture: true });
+    }
+    if (win)
+        return messageText.textContent = 'You win! :)';
+    if (lose) {
+        messageText.textContent = 'You lose! :(';
+        board.forEach(function (row) {
+            row.forEach(function (tile) {
+                if (tile.status === TILE_STATUSES.MARKED)
+                    markTile(tile);
+                if (tile.mine)
+                    revealTile(board, tile);
+            });
+        });
+    }
+}
+;
+function checkWin(board) {
+    return board.every(function (row) {
+        return row.every(function (tile) {
+            var isANumber = tile.status === TILE_STATUSES.NUMBER;
+            var isAMineNotRevealed = tile.mine && (tile.status === TILE_STATUSES.HIDDEN || tile.status === TILE_STATUSES.MARKED);
+            return isANumber || isAMineNotRevealed;
+        });
+    });
+}
+;
+function checkLose(board) {
+    return board.some(function (row) {
+        return row.some(function (tile) {
+            return tile.status === TILE_STATUSES.MINE;
+        });
+    });
+}
+;
+function stopProp(e) {
+    e.stopImmediatePropagation();
 }
 ;
