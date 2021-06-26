@@ -12,7 +12,6 @@ const TILE_STATUSES = {
 
 const button = document.getElementById('submit');
 const boardElement = document.querySelector<HTMLElement>('.board');
-const minesLeftText = document.querySelector('[data-mine-count]');
 const messageText = document.querySelector('.subtext');
 
 const BOARD_SIZE = 10;
@@ -100,7 +99,6 @@ function createBoard(boardSize: number, numberOfMines: number) {
 
 
 boardElement.style.setProperty('--size', BOARD_SIZE.toString());
-minesLeftText.textContent = numberOfMines.toString()
 
 // Mine Positioning
 
@@ -160,7 +158,8 @@ function listMinesLeft() {
     const markedTilesCount = board.reduce((acc, row) => {
         return acc + row.filter(tile => tile.status === TILE_STATUSES.MARKED).length
     }, 0);
-    return minesLeftText.textContent = (numberOfMines - markedTilesCount).toString()
+    
+    return messageText.textContent = `Mines left: ${numberOfMines - markedTilesCount}`
 };
 
 // Revealing tiles

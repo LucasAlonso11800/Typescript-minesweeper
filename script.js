@@ -10,7 +10,6 @@ var TILE_STATUSES = {
 };
 var button = document.getElementById('submit');
 var boardElement = document.querySelector('.board');
-var minesLeftText = document.querySelector('[data-mine-count]');
 var messageText = document.querySelector('.subtext');
 var BOARD_SIZE = 10;
 var numberOfMines = 10;
@@ -94,7 +93,6 @@ function createBoard(boardSize, numberOfMines) {
 }
 ;
 boardElement.style.setProperty('--size', BOARD_SIZE.toString());
-minesLeftText.textContent = numberOfMines.toString();
 function getMinePositions(boardSize, numberOfMines) {
     var positions = [];
     var _loop_3 = function () {
@@ -142,7 +140,7 @@ function listMinesLeft() {
     var markedTilesCount = board.reduce(function (acc, row) {
         return acc + row.filter(function (tile) { return tile.status === TILE_STATUSES.MARKED; }).length;
     }, 0);
-    return minesLeftText.textContent = (numberOfMines - markedTilesCount).toString();
+    return messageText.textContent = "Mines left: " + (numberOfMines - markedTilesCount);
 }
 ;
 // Revealing tiles
